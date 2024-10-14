@@ -13,7 +13,7 @@ const containerStyle = {
   height: "600px"
 }
 
-export default function Map() {
+export default function Map(params) {
     
   const {isLoaded} = useJsApiLoader({id:"google-map-script", googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY});
   return (
@@ -21,9 +21,15 @@ export default function Map() {
       {isLoaded && (
         <GoogleMap
           mapContainerStyle={containerStyle}
-          center={{lat: 47.43, lng: 19.08}}
+          center={{lat: 47.4216, lng: 19.0675}}
           zoom={13}
-          ></GoogleMap>
+          >
+          <MarkerF position={{lat: 47.4216, lng: 19.0675}} />
+          {params.positions.map((element) => (
+          <MarkerF position={{lat: element.lat, lng: element.lng}} />
+          ))}
+
+          </GoogleMap>
       )}
     
     </div>
