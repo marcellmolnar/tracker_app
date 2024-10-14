@@ -13,7 +13,7 @@ export async function PUT(req: NextRequest) {
 export async function GET(req: NextRequest) {
     try {
         const pos = await sql`SELECT * FROM positions LIMIT 30;`;
-        return new NextResponse({ positions: pos });
+        return NextResponse.json( pos );
     } catch (error) {
     console.error('Error in POST handler:', error);
         return new NextResponse(JSON.stringify({ error: 'Error processing request' }), { status: 500 });

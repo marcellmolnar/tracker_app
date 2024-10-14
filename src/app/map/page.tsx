@@ -19,18 +19,36 @@ export default function Home() {
   const [positions, setPositions] = useState([]);
 
   useEffect(() => {
-    // Fetch the positions from the API route
-    fetch('/api/positions')
-      .then((response) => response.json())
-      .then((data) => setPositions(data))
-      .catch((error) => console.error('Error fetching positions:', error));
+  const id = setInterval(() => {
+    const fetchPositions = async () => {
+      try {
+        const response = await fetch('/api/positions');
+        const data = await response.json();
+        setPositions(data);
+
+      } catch (error) {
+        console.error('Error fetching positions:', error);
+      }
+    };
+
+    fetchPositions();
+    }, 5000);
+      return () => clearInterval(id);
   }, []);
 
+
   const {isLoaded} = useJsApiLoader({id:"google-map-script", googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY});
+
+  // Render Google Map only when the API is loaded
+  if (!isLoaded) {
+    return
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">Loading...</main>;
+  }
+
   return (
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
         <h1>Hello from my Raspberry Pi</h1>
-      {isLoaded && (
+        {isLoaded  ? (
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={{lat: 47.4216, lng: 19.0675}}
@@ -39,9 +57,9 @@ export default function Home() {
           {positions.map((element) => (
           <MarkerF position={{lat: element.lat, lng: element.lng}} />
           ))}
-
           </GoogleMap>
-      )}
+          ) : (<p>No markers available</p>)
+        }
       </main>
   );
 }
