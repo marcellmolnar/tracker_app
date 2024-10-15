@@ -12,6 +12,7 @@ export default function Home() {
 
   const createMarkers = async (positions) => {
     if (mapRef.current) {
+      console.log("redraw");
       // Clear existing markers
       markers.forEach((marker) => marker.setMap(null)); // Remove markers from the map
       const newMarkers = []; // Array to hold new markers
@@ -30,15 +31,22 @@ export default function Home() {
       }
 
       setMarkers(newMarkers);
+      console.log("redraw done");
     }
   };
+
+  useEffect(()=>{
+    const redraw = async () => {
+      await createMarkers(positions);
+    };
+    redraw();
+  }, [hoveredMarker, positions]);
 
   useEffect(() => {
     const fetchPositions = async () => {
       try {
         const response = await fetch('/api/positions');
         const data = await response.json();
-        await createMarkers(data);
         setPositions(data);
 
       } catch (error) {
@@ -52,12 +60,6 @@ export default function Home() {
     return () => clearInterval(id);
   }, []);
 
-  useEffect(()=>{
-    const redraw = async () => {
-      await createMarkers(positions);
-    };
-    redraw();
-  }, [hoveredMarker]);
 
   // Handle table row hover
   const handleMouseEnter = (id) => {
