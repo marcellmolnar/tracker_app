@@ -1,6 +1,5 @@
 "use client";
 
-//import MyMap from "./map"
 import React, { useEffect, useState, useRef } from 'react';
 import { APIProvider, Map, MapCameraChangedEvent } from '@vis.gl/react-google-maps';
 
@@ -11,8 +10,7 @@ export default function Home() {
   const mapRef = useRef(null);
 
   const createMarkers = async (positions) => {
-    if (mapRef.current) {
-      console.log("redraw");
+    if (mapRef.current && positions.length > 0) {
       // Clear existing markers
       markers.forEach((marker) => marker.setMap(null)); // Remove markers from the map
       const newMarkers = []; // Array to hold new markers
@@ -21,7 +19,7 @@ export default function Home() {
 
       // Create markers for all positions
       for (const position of positions) {
-        const pin = new PinElement({ scale: hoveredMarker === position.id ? 1.5 : 0.9, title: "position.time" }); // Create a new pin element
+        const pin = new PinElement({ scale: hoveredMarker === position.id ? 1.0 : 0.7, title: "position.time" }); // Create a new pin element
         const marker = new AdvancedMarkerElement({
           map: mapRef.current, // Use the map reference
           position: { lat: position.lat, lng: position.lng },
@@ -31,7 +29,6 @@ export default function Home() {
       }
 
       setMarkers(newMarkers);
-      console.log("redraw done");
     }
   };
 
@@ -48,6 +45,9 @@ export default function Home() {
         const response = await fetch('/api/positions');
         const data = await response.json();
         setPositions(data);
+        if (data.length > 0) {
+          mapRef.current.setCenter(data[0]);
+        }
 
       } catch (error) {
         console.error('Error fetching positions:', error);
@@ -90,7 +90,7 @@ export default function Home() {
           </tr>
         </thead>
         <tbody>
-          {positions.map((position) => (
+          {positions.length > 0 && positions.map((position) => (
             <tr
               key={position.id}
               onMouseEnter={() => handleMouseEnter(position.id)} // Hover starts
